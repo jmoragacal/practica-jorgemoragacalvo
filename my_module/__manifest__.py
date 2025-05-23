@@ -15,7 +15,7 @@ Long description of module's purpose
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Discuss',
-    'version': '0.1',
+    'version': '0.2',
 
     # any module necessary for this one to work correctly
     'depends': ['mail', 'project'],
@@ -30,7 +30,7 @@ Long description of module's purpose
     #    'demo/demo.xml',
     #],
     'license': 'LGPL-3',
-    'installable': True,  # ← Agrega esto
+    #'installable': True,  # ← Agrega esto
 }
 
 
