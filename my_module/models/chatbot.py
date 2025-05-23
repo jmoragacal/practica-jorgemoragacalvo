@@ -6,6 +6,7 @@ import re
 import time
 
 _logger = logging.getLogger(__name__)
+_logger.info("=== CHATBOT MODULE LOADING ===")
 
 class DiscussChannel(models.Model):
     _inherit = 'discuss.channel'
