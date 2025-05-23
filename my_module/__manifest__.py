@@ -18,7 +18,7 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['mail', 'project', 'discuss'],
+    'depends': ['base', 'mail', 'project', 'discuss'],
 
     # always loaded
     'data': [
@@ -31,7 +31,6 @@ Long description of module's purpose
     #],
     'license': 'LGPL-3',
     'installable': True,  # ← Agrega esto
-    'auto_install': False,  #
 }
 
 
