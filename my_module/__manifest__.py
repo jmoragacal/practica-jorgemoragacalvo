@@ -18,7 +18,7 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['mail', 'project'],
+    'depends': ['mail', 'project', 'discuss', 'project'],
 
     # always loaded
     'data': [
@@ -29,7 +29,9 @@ Long description of module's purpose
     #'demo': [
     #    'demo/demo.xml',
     #],
-    'license': 'LGPL-3'
+    'license': 'LGPL-3',
+    'installable': True,  # ← Agrega esto
+    'auto_install': False,  #
 }
 
 
