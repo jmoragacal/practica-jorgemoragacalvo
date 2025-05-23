@@ -41,7 +41,9 @@ class DiscussChannel(models.Model):
     def _message_post_after_hook(self, message, msg_vals):
         result = super()._message_post_after_hook(message, msg_vals)
 
-        if message.author_id != self.env.ref('chatbot_ai.ai_assistant_partner'):
+        ai_partner = self.env.ref('chatbot_ai.ai_assistant_partner', raise_if_not_found=False)
+        if ai_partner and message.author_id != ai_partner:
+        #if message.author_id != self.env.ref('chatbot_ai.ai_assistant_partner'):
             self._handle_ai_response(message)
 
         return result
@@ -77,7 +79,10 @@ class DiscussChannel(models.Model):
 
             # Construir historial de conversación con roles adecuados
             parts = [{"role": "user", "parts": [{"text": f"Contexto:\n{task_context}"}]}]
-            assistant_partner = self.env.ref('chatbot_ai.ai_assistant_partner')
+            #assistant_partner = self.env.ref('chatbot_ai.ai_assistant_partner')
+            assistant_partner = self.env.ref('chatbot_ai.ai_assistant_partner', raise_if_not_found=False)
+            if not assistant_partner:
+                return
             for m in reversed(history):
                 role = "model" if m.author_id == assistant_partner else "user"
                 text = clean_html(m.body.strip())
