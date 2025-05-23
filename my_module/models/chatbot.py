@@ -55,10 +55,18 @@ class DiscussChannel(models.Model):
             _logger.info("Mensaje recibido del usuario")
 
             api_key = self.env['ir.config_parameter'].sudo().get_param(
-                'chatbot_ai.gemini_api_key', 'tu api key')
+                'chatbot_ai.gemini_api_key', None)
 
             if not api_key:
                 _logger.error("No se encontró la clave API de Gemini.")
+                #
+                self.sudo().message_post(
+                body="Error: No se ha configurado la clave API de Gemini.",
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+                author_id=self.env.ref('chatbot_ai.ai_assistant_partner').id
+                )
+                #
                 return
 
             task_context = self._get_task_context()
@@ -82,8 +90,21 @@ class DiscussChannel(models.Model):
             parts = [{"role": "user", "parts": [{"text": f"Contexto:\n{task_context}"}]}]
             #assistant_partner = self.env.ref('chatbot_ai.ai_assistant_partner')
             assistant_partner = self.env.ref('chatbot_ai.ai_assistant_partner', raise_if_not_found=False)
+            
             if not assistant_partner:
+                #
+                _logger.error("No se encontró el partner del asistente AI.")
+                self.sudo().message_post(
+                body="Error: No se encontró el partner del asistente AI.",
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+                author_id=self.env.ref('base.partner_admin').id
+                )
+                #
                 return
+
+            # Construir historial de conversación con roles adecuados
+            parts = [{"role": "user", "parts": [{"text": f"Contexto:\n{task_context}"}]}]
             for m in reversed(history):
                 role = "model" if m.author_id == assistant_partner else "user"
                 text = clean_html(m.body.strip())
@@ -135,14 +156,32 @@ class DiscussChannel(models.Model):
                         except Exception as e:
                             _logger.warning(f"Intento {attempt + 1} fallido al enviar mensaje del bot: {str(e)}")
                             time.sleep(0.5)  # Espera antes de intentar de nuevo
-                    else:
-                        # Esto se ejecuta si el bucle termina sin 'break', es decir, todos los intentos fallaron
-                        _logger.error("Fallo final: No se pudo enviar el mensaje del bot tras %s intentos.", max_retries)
+                else:
+                    # Esto se ejecuta si el bucle termina sin 'break', es decir, todos los intentos fallaron
+                    _logger.error("Fallo final: No se pudo enviar el mensaje del bot tras %s intentos.", max_retries)
+                    self.sudo().message_post(
+                        body="Error: No se pudo enviar la respuesta del bot. Intenta de nuevo.",
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_comment',
+                        author_id=assistant_partner.id
+                    )
             else:
                 _logger.error("Gemini API error: %s", response.text)
+                self.sudo().message_post(
+                body="Error: Fallo al conectar con la API de Gemini.",
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+                author_id=assistant_partner.id
+                )
 
         except Exception as e:
             _logger.error("Error al generar respuesta del chatbot: %s", str(e))
+            self.sudo().message_post(
+            body="Error: Ocurrió un problema al procesar la solicitud. Intenta de nuevo.",
+            message_type='comment',
+            subtype_xmlid='mail.mt_comment',
+            author_id=assistant_partner.id
+            )
 
 # Método para limpiar el mensaje html
 def clean_html(raw_html):
