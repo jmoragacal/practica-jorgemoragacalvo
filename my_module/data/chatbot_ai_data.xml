@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Crear Partner del bot -->
+        <record id="ai_assistant_partner" model="res.partner">
+            <field name="name">AI Assistant</field>
+            <field name="email">ai.assistant@sellside.cl</field>
+            <field name="active" eval="True"/>
+            <field name="company_id" eval="False"/>
+            <field name="im_status">online</field>
+            <field name="type">contact</field>
+            <field name="is_company" eval="False"/>
+            <field name="partner_share" eval="False"/>
+        </record>
+
+        <!-- Crear Usuario del bot -->
+        <record id="ai_assistant_user" model="res.users">
+            <field name="partner_id" ref="ai_assistant_partner"/>
+            <field name="login">ai_assistant</field>
+            <field name="password">ai_assistant</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_user')])]"/>
+            <field name="active" eval="True"/>
+            <field name="notification_type">inbox</field>
+            <field name="share" eval="False"/>
+            <field name="odoobot_state">disabled</field>
+            <field name="im_status">online</field>
+        </record>
+
+        <!-- Crear canal del bot -->
+        <record id="channel_ai_chatbot" model="discuss.channel">
+            <field name="name">AI Assistant</field>
+            <field name="channel_type">channel</field>
+            <field name="description">Asistente de IA que responde preguntas automáticamente.</field>
+            <field name="channel_partner_ids" eval="[(4, ref('ai_assistant_partner')), (4, ref('base.partner_admin'))]"/>
+        </record>
+    </data>
+</odoo>
